@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>放大镜</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        img{ /*IE低版本兼容，去掉IE5、6图像出现的蓝色边框*/
+            outline: none;
+            border: 0;
+        }
+        .zoom{
+            width: 400px;
+            height: 400px;
+            position: relative;
+            cursor: move;
+        }
+        .left-img{
+            width: 400px;
+            height: 400px;
+            position: relative;
+        }
+        .pointer{
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            background-color: rgba(255,0,0,.5);
+            left: 0;
+            top: 0;
+        }
+        /*添加遮罩层*/
+        .mask{
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: 410px;
+            top: 0;
+            display: none;
+        }
+        .zoom .left-img img{
+            width: 400px;
+            height: 400px;
+        }
+        /*缩略图*/
+        .imgs-list{
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .imgs-list li{
+            list-style-type: none;
+            width: 50px;
+            height: 50px;
+           /* display: inline-block;
+            margin-right: 2px;*/
+            flex: 1;
+            cursor: pointer;
+        }
+        .imgs-list img{
+            width: 50px;
+            height: 50px;
+        }
+        .right-img{
+            width: 400px;
+            height: 400px;
+            position: absolute;
+            overflow: hidden;/*超出部分隐藏*/
+            display: none;
+            left: 410px;
+            top: 0px;
+        }
+        .zoom .right-img img{
+            width: 800px;
+            height: 800px;
+            display: block;
+            *display: inline;/*兼容IE6*/
+            *zoom: 1;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+<div class="zoom">
+    <div class="left-img">
+        <img src="images/small01.jpg" />
+        <div class="pointer"></div>
+        <div class="mask"></div>
+    </div>
+    <div style="clear:both"></div>
+    <ul class="imgs-list">
+        <li><img src="images/small01.jpg" /></li>
+        <li><img src="images/small02.jpg" /></li>
+        <li><img src="images/small01.jpg" /></li>
+        <li><img src="images/small02.jpg" /></li>
+        <li><img src="images/small02.jpg" /></li>
+        <li><img src="images/small02.jpg" /></li>
+        <li><img src="images/small02.jpg" /></li>
+    </ul>
+    <div class="right-img">
+        <img src="images/big01.jpg" />
+    </div>
+</div>
+<script>
+    // 获取DOM
+    function $(className){
+        return document.getElementsByClassName(className)[0];
+    }
+    // 鼠标在左侧图上经过时，显示要放大的区域，右侧显示该放大区域中的图像内容
+    $('left-img').onmouseover = function (e) {
+        var e = e || window.event; // 事件对象兼容写法
+        $('pointer').style.display = 'block';
+        $('right-img').style.display = 'block';
+        // 获取鼠标坐标值
+        var x = (e.offsetX || e.layerX) - $('pointer').offsetWidth / 2;
+        var y = (e.offsetY || e.layerY) - $('pointer').offsetHeight / 2;
+        // 超过显示区处理
+        if(x <= 0){ // 超出左侧区域
+            x = 0;
+        }else if(x > $('left-img').clientWidth - $('pointer').offsetWidth){// 超出右侧区域，clientWidth为DOM可视区宽度，不包括边框线，offsetWidth为DOM对象实际宽度，包括边框线和padding值
+            x = $('left-img').clientWidth - $('pointer').offsetWidth;
+        }
+        if(y <= 0){// 超出顶部区域
+            y = 0;
+        }else if(y > $('left-img').clientHeight - $('pointer').offsetHeight){// 超出底端区域
+            y = $('left-img').clientHeight - $('pointer').offsetHeight;
+        }
+        $('pointer').style.left = x + 'px'
+        $('pointer').style.top = y + 'px'
+
+        // 显示右侧图要放大的区域
+        $('right-img').children[0].style.left = x * -2 + 'px';
+        $('right-img').getElementsByTagName('img')[0].style.top = y * -2 + 'px';
+
+        // 鼠标离开后的处理
+        this.onmouseout = function () {
+            $('pointer').style.display = 'none';
+            $('right-img').style.display = 'none';
+        }
+    };
+
+    // 缩略图处理
+    for(var i=0;i<$('imgs-list').children.length;i++){
+        $('imgs-list').children[i].setAttribute('index',i+1) // 为每个li标签添加一个index属性，用来存放该li标签的下标
+        $('imgs-list').children[i].onmouseover = function () { // 鼠标划过的当前缩略图
+            // var src = this.children[0].getAttribute('src');
+            // $('left-img').children[0].setAttribute('src', src)
+            // $('right-img').children[0].setAttribute('src', src)
+
+            var index = this.getAttribute('index');
+            console.log(index)
+            $('left-img').children[0].setAttribute('src', 'images/small0'+index+'.jpg'); //改变上面左侧图的src值，以保持图像同步
+            $('right-img').children[0].setAttribute('src', 'images/big0'+index+'.jpg'); //改变上面右侧大图的src值，以保持图像同步
+        }
+    }
+</script>
+</body>
+</html>

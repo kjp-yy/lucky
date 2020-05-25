@@ -1,0 +1,8 @@
+* {
+ margin: 0px;
+ padding: 0px;
+}
+.box>.tupain>img {
+    width: 400px;
+    height: 400px;
+}
